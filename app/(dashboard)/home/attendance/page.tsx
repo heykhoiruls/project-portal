@@ -1,8 +1,8 @@
+"use client";
 import { Separator } from "@/components/ui/separator";
 import React from "react";
 import UserAttandaceTable from "./attendance-table";
-import { attendanceData, dataHomeMenu } from "@/lib/data/data-home";
-import Title from "@/components/ui/title";
+import { attendanceData } from "@/lib/data/data-home";
 
 const UserAttandance = () => {
   const count = {
