@@ -33,7 +33,6 @@ const PageHome = () => {
           <Card className="flex items-center justify-center border border-gray-100 gap-3">
             <CardHeader className="gap-1 px-4 md:px-6 w-full flex justify-between items-center">
               <HomeHeader
-                idEmployee={idEmployee}
                 onSelected={(index) => {
                   setActiveIndex(index);
                 }}

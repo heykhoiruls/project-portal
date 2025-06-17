@@ -40,7 +40,6 @@
     "autoprefixer": "^10.4.21",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
-    "eslint-plugin-simple-import-sort": "^12.1.1",
     "postcss": "^8.5.4",
     "prisma": "^6.9.0",
     "tailwindcss": "^4.1.8",
