@@ -6,7 +6,7 @@ const UserProfile = () => {
   return (
     <div className="w-full py-5 gap-3 flex flex-col">
       <ProfileContact />
-      <ProfileIdentity />
+      {/* <ProfileIdentity /> */}
     </div>
   );
 };

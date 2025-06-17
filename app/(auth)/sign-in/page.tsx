@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import {
   Card,
@@ -12,51 +12,68 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { redirect } from "next/navigation";
-import { dataUsers } from "@/lib/data/data-user";
 import { messages } from "@/lib/messages";
+import { useRouter } from "next/navigation";
 
 const PageSignIn = () => {
-  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const [idEmployee, setIdEmployee] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-    const formData = new FormData(e.currentTarget);
-    const idEmployee = formData.get("idEmployee");
-    const password = formData.get("password");
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (isLoading) return;
 
     if (!idEmployee || !password) {
-      toast.error(messages.form.required, {
-        duration: 2500,
-      });
+      toast.error(messages.signIn.required);
       return;
     }
 
-    const user = dataUsers.find((u) => u.idEmployee === idEmployee);
-
-    if (!user) {
-      toast.error(messages.form.userNotFound, { duration: 2500 });
+    if (idEmployee.length < 9) {
+      toast.warning(messages.signIn.userNotFound);
       return;
     }
 
-    if (user.password !== password) {
-      toast.error(messages.form.loginErrorPassword, { duration: 2500 });
-      return;
-    }
-    localStorage.setItem("idEmployee", String(idEmployee));
-    toast.success(messages.form.loginSucces, { duration: 2500 });
+    setIsLoading(true);
 
-    console.log("idEmployee ->", idEmployee);
-    console.log("password ->", password);
-    redirect("/");
+    try {
+      await toast.promise(
+        (async () => {
+          const res = await fetch("/api/auth/sign-in", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idEmployee, password }),
+          });
+
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.message);
+
+          localStorage.setItem("idEmployee", idEmployee);
+          return data.message;
+        })(),
+        {
+          loading: messages.loading,
+          success: (msg) => msg || messages.signIn.success,
+          error: (err) => err.message || messages.signIn.passwordError,
+        }
+      );
+
+      setTimeout(() => {
+        router.push("/");
+      }, 2500);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="w-full h-dvh flex justify-center items-baseline md:items-center pt-16 md:p-0">
+    <div className="w-full h-dvh flex justify-center items-baseline md:items-center pt-20 md:p-0">
       <form
-        className="w-full h-3/4 max-w-xs"
         onSubmit={handleLogin}
+        className="w-full h-3/4 max-w-xs"
       >
-        <Card className="flex items-center justify-center border border-gray-100">
+        <Card className="flex items-center justify-center border border-gray-100 px-3 md:px-0">
           <CardHeader className="gap-1 px-8 py-4 w-full flex items-center flex-col">
             <Image
               src="/logo.svg"
@@ -68,44 +85,58 @@ const PageSignIn = () => {
             />
             <CardTitle className="text-xl">Selamat datang</CardTitle>
             <CardDescription className="text-xs">
-              silahkan masuk dengan akun anda
+              Silakan masuk dengan akun anda
             </CardDescription>
           </CardHeader>
+
           <CardContent className="w-full">
-            <div className="grid gap-2 mb-3">
-              <div>
-                <Label className="text-xs font-medium px-2">
-                  Nomor Karyawan
-                </Label>
-                <Input
-                  id="idEmployee"
-                  name="idEmployee"
-                  type="number"
-                  placeholder="Masukan nomor karyawan"
-                  className="mt-2"
-                />
-              </div>
-            </div>
-            <div className="grid gap-3 mb-8">
-              <div>
-                <Label className="text-xs font-medium px-2">Password</Label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  placeholder="Masukan password"
-                  className="mt-2"
-                />
-              </div>
-            </div>
-            <div className="w-full">
-              <Button
-                type="submit"
-                className="p-5 w-full cursor-pointer"
+            <div className="grid mb-3">
+              <Label
+                htmlFor="idEmployee"
+                className="text-xs font-medium px-2"
               >
-                Masuk
-              </Button>
+                Nomor Karyawan
+              </Label>
+              <Input
+                id="idEmployee"
+                name="idEmployee"
+                type="text"
+                inputMode="numeric"
+                pattern="\d*"
+                placeholder="Masukan Nomor Karyawan"
+                value={idEmployee}
+                maxLength={9}
+                onChange={(e) =>
+                  setIdEmployee(e.target.value.replace(/\D/g, ""))
+                }
+              />
             </div>
+
+            <div className="grid mb-12">
+              <Label
+                htmlFor="password"
+                className="text-xs font-medium px-2"
+              >
+                Password
+              </Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="Masukkan password"
+                className="mt-2"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+
+            <Button
+              type="submit"
+              className="p-5 w-full"
+              disabled={isLoading}
+            >
+              {isLoading ? "Loading..." : "Masuk"}
+            </Button>
           </CardContent>
         </Card>
       </form>

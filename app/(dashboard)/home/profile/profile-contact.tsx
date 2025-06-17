@@ -1,4 +1,7 @@
 "use client";
+import React, { useEffect, useState } from "react";
+import IsError from "@/app/(trouble)/isError";
+import IsLoading from "@/app/(trouble)/isLoading";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,22 +16,70 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Contact, Pencil } from "lucide-react";
-import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
+import { useUserBankAccount } from "@/app/hook/useUserBankContact";
+import ContactNotice from "./profile-notice";
 import { toast } from "sonner";
+import { messages } from "@/lib/messages";
 
 const ProfileContact = () => {
-  const [email, setEmail] = useState("kotaksuratkhoirul@gmail.com");
-  const [phone, setPhone] = useState("0858-5976-8956");
+  const { user, error, loading, mutate, updateUserData } = useUserBankAccount();
+  const [saving, setSaving] = useState(false);
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
 
-  const handleUpdate = () => {
-    if (!email || !phone) {
-      toast.error("Harap lengkapi semua data kontak.");
+  useEffect(() => {
+    if (user) {
+      setEmail(user.Contact?.email || "");
+      setPhone(user.Contact?.phone || "");
+    }
+  }, [user]);
+
+  if (error) return <IsError errorMessage={error} />;
+  if (loading || !user) return <IsLoading />;
+
+  const handleUpdate = async () => {
+    if (!user.idEmployee) return;
+    if (!email && !phone) {
+      toast.warning(messages.contact.hasNo);
       return;
     }
 
-    toast.success("Data kontak berhasil diperbarui!");
-    // Tambahkan request ke backend jika ingin menyimpan
+    const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (email && !regexEmail.test(email)) {
+      toast.error(messages.contact.wrongEmail);
+      return;
+    }
+
+    const regexPhone = /^08[0-9]{10,12}$/;
+
+    if (phone) {
+      if (!phone.startsWith("08")) {
+        toast.error(messages.contact.wrongPhoneFirst);
+        return;
+      }
+
+      if (!regexPhone.test(phone)) {
+        toast.error(messages.contact.wrongPhoneLength);
+        return;
+      }
+    }
+
+    setSaving(true);
+    const success = await updateUserData(
+      user.idEmployee,
+      user.Bank?.bankAccount || "",
+      email,
+      phone
+    );
+    setSaving(false);
+
+    if (success) {
+      toast.success(messages.contact.success);
+      mutate();
+    } else {
+      toast.error(messages.contact.failSave);
+    }
   };
 
   return (
@@ -44,11 +95,15 @@ const ProfileContact = () => {
 
         <AlertDescription className="text-xs pt-2">
           Email
-          <div className="pt-1 text-xs font-medium">{email}</div>
+          <div className="pt-1 text-xs font-medium">
+            {user.Contact?.email || "hmm, kamu belum email"}
+          </div>
         </AlertDescription>
         <AlertDescription className="text-xs pt-2">
           Nomor Telepon
-          <div className="pt-1 text-xs font-medium">{phone}</div>
+          <div className="pt-1 text-xs font-medium">
+            {user.Contact?.phone || "isi dulu nomor hape kamu ya !"}
+          </div>
         </AlertDescription>
       </Alert>
 
@@ -64,7 +119,7 @@ const ProfileContact = () => {
           <div className="grid gap-1">
             <Label
               htmlFor="email"
-              className="text-xs font-medium px-2 pb-2"
+              className="text-xs font-medium px-2"
             >
               Email
             </Label>
@@ -79,7 +134,7 @@ const ProfileContact = () => {
           <div className="grid gap-1">
             <Label
               htmlFor="phone"
-              className="text-xs font-medium px-2 pb-2"
+              className="text-xs font-medium px-2"
             >
               Nomor Telepon
             </Label>
@@ -88,7 +143,13 @@ const ProfileContact = () => {
               type="tel"
               placeholder="Masukan Nomor Telpon"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              maxLength={14}
+              onChange={(e) => {
+                const input = e.target.value.replace(/\D/g, "");
+                if (input.length <= 14) {
+                  setPhone(input);
+                }
+              }}
             />
           </div>
         </div>
@@ -98,12 +159,20 @@ const ProfileContact = () => {
             <Button
               type="button"
               onClick={handleUpdate}
+              disabled={saving || !email || !phone}
             >
-              Ubah
+              {saving ? "Menyimpan" : "Perbarui"}
             </Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>
+
+      {user.Contact && (
+        <ContactNotice
+          email={user.Contact.email}
+          phone={user.Contact.phone}
+        />
+      )}
     </Dialog>
   );
 };

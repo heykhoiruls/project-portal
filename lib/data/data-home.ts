@@ -1,6 +1,10 @@
 // data-home.tsx
 
-export const dataHomeMenu = ["Kehadiran", "Pekerjaan", "Rekening", "Profile"];
+export const dataHomeMenu = [
+  // "Kehadiran", "Pekerjaan",
+  "Rekening",
+  "Profile",
+];
 
 export const attendanceData = [
   {

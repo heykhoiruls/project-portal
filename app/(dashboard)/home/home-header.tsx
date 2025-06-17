@@ -1,49 +1,55 @@
 "use client";
 import React from "react";
-import { redirect } from "next/navigation";
-import { dataUsers } from "@/lib/data/data-user";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { nameInitial } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { CardTitle, CardDescription } from "@/components/ui/card";
+import { dataHomeMenu } from "@/lib/data/data-home";
+import IsError from "@/app/(trouble)/isError";
+import IsLoading from "@/app/(trouble)/isLoading";
+import { useUserBankAccount } from "@/app/hook/useUserBankContact";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
-import { dataHomeMenu } from "@/lib/data/data-home";
+import { toast } from "sonner";
 
 const HomeHeader = ({
-  idEmployee,
   onSelected,
 }: {
-  idEmployee: string | null;
   onSelected?: (index: number) => void;
 }) => {
+  const router = useRouter();
+
   const handleLogout = () => {
+    toast.success("Bye, bye. kamu berhasil logout");
     localStorage.removeItem("idEmployee");
-    redirect("/");
+    router.push("/sign-in");
   };
 
-  const user = dataUsers.find((u) => u.idEmployee === idEmployee);
+  const { user, error, loading } = useUserBankAccount();
+
+  if (error) return <IsError errorMessage={error} />;
+  if (loading || !user) return <IsLoading />;
 
   return (
     <div className="flex items-center gap-4 w-full">
       <Avatar className="w-10 h-10">
-        <AvatarImage
-          src="https://github.com/heykhoiruls.png"
-          alt="Profile"
-        />
-        <AvatarFallback>KF</AvatarFallback>
+        <AvatarFallback className="font-bold">
+          {nameInitial(user.name)}
+        </AvatarFallback>
       </Avatar>
 
       <div className="flex flex-col text-xs flex-1 overflow-hidden">
-        <CardTitle className="truncate text-md md:text-lg uppercase">
-          {user?.name || "Tidak ada nama"}
+        <CardTitle className="truncate text-md uppercase">
+          {user.name}
         </CardTitle>
-        <CardDescription className="truncate text-xs pt-1">
-          {idEmployee}
+        <CardDescription className="truncate text-xs ">
+          {user.idEmployee}
         </CardDescription>
       </div>
 

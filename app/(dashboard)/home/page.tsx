@@ -15,10 +15,10 @@ const PageHome = () => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   const tabContent = [
-    <UserAttandance key="att" />,
-    <UserJob key="job" />,
     <UserBankAccount key="bank" />,
     <UserProfile key="profile" />,
+    <UserAttandance key="att" />,
+    <UserJob key="job" />,
   ];
 
   useEffect(() => {
