@@ -15,6 +15,7 @@ export const messages = {
   },
   contact: {
     hasNo: "Kamu harus lengkapi email dan nomor handphone ya",
+    hasLowercase: "Email harus menggunakan huruf kecil semua",
     wrongEmail: "Format email kamu salah, check lagi ya",
     wrongPhoneFirst: `Nomor hape harus dimulai dengan " 08 " bosquh`,
     wrongPhoneLength: `Keknya salah deh, nomor hape harus 12 – 14 digit.`,

@@ -45,7 +45,13 @@ const ProfileContact = () => {
       return;
     }
 
-    const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const regexEmail = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
+
+    if (email && email !== email.toLowerCase()) {
+      toast.error(messages.contact.hasLowercase);
+      return;
+    }
+
     if (email && !regexEmail.test(email)) {
       toast.error(messages.contact.wrongEmail);
       return;

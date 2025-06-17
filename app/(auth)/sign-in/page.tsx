@@ -73,7 +73,7 @@ const PageSignIn = () => {
         onSubmit={handleLogin}
         className="w-full h-3/4 max-w-xs"
       >
-        <Card className="flex items-center justify-center border border-gray-100 px-3 md:px-0">
+        <Card className="flex items-center justify-center border border-gray-100 px-2 md:px-0">
           <CardHeader className="gap-1 px-8 py-4 w-full flex items-center flex-col">
             <Image
               src="/logo.svg"
@@ -106,6 +106,7 @@ const PageSignIn = () => {
                 placeholder="Masukan Nomor Karyawan"
                 value={idEmployee}
                 maxLength={9}
+                className="text-xs placeholder:text-xs"
                 onChange={(e) =>
                   setIdEmployee(e.target.value.replace(/\D/g, ""))
                 }
@@ -124,7 +125,7 @@ const PageSignIn = () => {
                 name="password"
                 type="password"
                 placeholder="Masukkan password"
-                className="mt-2"
+                className="mt-2 text-xs placeholder:text-xs"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
