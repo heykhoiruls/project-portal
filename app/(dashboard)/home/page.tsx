@@ -11,7 +11,7 @@ import Title from "@/components/ui/title";
 import { dataHomeMenu } from "@/lib/data/data-home";
 
 const PageHome = () => {
-  const [idEmployee, setIdEmployee] = useState<string | null>(null);
+  const [, setIdEmployee] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
   const tabContent = [
@@ -22,8 +22,8 @@ const PageHome = () => {
   ];
 
   useEffect(() => {
-    const id = localStorage.getItem("idEmployee");
-    setIdEmployee(id);
+    const idEmployee = localStorage.getItem("idEmployee");
+    setIdEmployee(idEmployee);
   }, []);
 
   return (

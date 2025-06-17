@@ -1,6 +1,5 @@
 import React from "react";
 import ProfileContact from "./profile-contact";
-import ProfileIdentity from "./profile-identity";
 
 const UserProfile = () => {
   return (

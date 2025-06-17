@@ -35,8 +35,12 @@ export const useUserBankAccount = () => {
 
       const data = await res.json();
       setUser(data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Terjadi kesalahan tak dikenal");
+      }
     } finally {
       setLoading(false);
     }
